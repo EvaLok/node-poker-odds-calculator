@@ -7,14 +7,15 @@ import * as chalk from 'chalk';
 import * as program from 'commander';
 import {CardGroup, OddsCalculator} from '../index';
 
+const ALLOWED_GAMES: string[] = ['full', '6plus', 'triton'];
 program
     .option('-b, --board <cards>', 'sets the board')
-    .option('-g --game <game variant name>', 'sets the game variant for calculation. options: full, short.', 'full')
+    .option('-g --game <game variant name>', 'sets the game variant for calculation. options: full, 6plus, triton.', 'full')
     .parse(process.argv);
 
 try {
   const gameVariant: string = program.game;
-  if (gameVariant !== 'short' && gameVariant !== 'full') {
+  if (ALLOWED_GAMES.indexOf(gameVariant) === -1) {
     program.outputHelp();
     throw Error(`invalid game variant: ${gameVariant}`);
   }

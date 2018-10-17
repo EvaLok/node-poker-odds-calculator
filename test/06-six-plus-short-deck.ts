@@ -4,19 +4,19 @@
  */
 import { expect } from 'chai';
 import { CardGroup, HandEquity, HandRank,
-         OddsCalculator, ShortDeckGame, ShortDeckRank } from '../src';
+         OddsCalculator, ShortDeckRank, SixPlusShortDeckGame } from '../src';
 
-describe('OddsCalculator: short-deck', () => {
+describe('OddsCalculator: 6plus short-deck', () => {
   it('no board', () => {
     const player1Cards: CardGroup = CardGroup.fromString('AcAh');
     const player2Cards: CardGroup = CardGroup.fromString('JdTd');
-    const result: OddsCalculator = OddsCalculator.calculate([player1Cards, player2Cards], undefined, 'short', 10000);
+    const result: OddsCalculator = OddsCalculator.calculate([player1Cards, player2Cards], undefined, '6plus', 10000);
 
     const oddsPlayer1: number = result.equities[0].getEquity();
     const oddsPlayer2: number = result.equities[1].getEquity();
 
     expect(oddsPlayer1).to.be.within(61, 67);
-    expect(oddsPlayer2).to.be.within(34, 38);
+    expect(oddsPlayer2).to.be.within(32, 34);
   });
 
   it('calculates proper odds', () => {
@@ -26,14 +26,14 @@ describe('OddsCalculator: short-deck', () => {
     const player1Cards: CardGroup = CardGroup.fromString('AhQd');
     const player2Cards: CardGroup = CardGroup.fromString('JsTs');
     let board: CardGroup = CardGroup.fromString('9s9h8c');
-    let result: OddsCalculator = OddsCalculator.calculate([player1Cards, player2Cards], board, 'short', 10000);
+    let result: OddsCalculator = OddsCalculator.calculate([player1Cards, player2Cards], board, '6plus', 10000);
 
     let p1Equity: HandEquity = result.equities[0];
     let p2Equity: HandEquity = result.equities[1];
 
-    expect(p1Equity.getEquity()).to.be.equal(35);
+    expect(p1Equity.getEquity()).to.be.equal(37);
     expect(p1Equity.getTiePercentage()).to.be.equal(2);
-    expect(p2Equity.getEquity()).to.be.equal(63);
+    expect(p2Equity.getEquity()).to.be.equal(61);
     expect(p2Equity.getTiePercentage()).to.be.equal(2);
 
     /**
@@ -43,7 +43,7 @@ describe('OddsCalculator: short-deck', () => {
      * Tie: 14%~
      */
     board = CardGroup.fromString('9s9h8c8s');
-    result = OddsCalculator.calculate([player1Cards, player2Cards], board, 'short', 500);
+    result = OddsCalculator.calculate([player1Cards, player2Cards], board, '6plus', 500);
 
     p1Equity = result.equities[0];
     p2Equity = result.equities[1];
@@ -58,7 +58,7 @@ describe('OddsCalculator: short-deck', () => {
     const player1Cards: CardGroup = CardGroup.fromString('7d6d');
     const player2Cards: CardGroup = CardGroup.fromString('KhKc');
     const board: CardGroup = CardGroup.fromString('Kd9dAdTsAs');
-    const result: OddsCalculator = OddsCalculator.calculate([player1Cards, player2Cards], board, 'short', 1);
+    const result: OddsCalculator = OddsCalculator.calculate([player1Cards, player2Cards], board, '6plus', 1);
 
     const oddsPlayer1: number = result.equities[0].getEquity();
     const oddsPlayer2: number = result.equities[1].getEquity();
@@ -67,7 +67,7 @@ describe('OddsCalculator: short-deck', () => {
   });
 
   it('a-6-7-8-9 is a straight', () => {
-    const game: ShortDeckGame = new ShortDeckGame();
+    const game: SixPlusShortDeckGame = new SixPlusShortDeckGame();
     const playerCards: CardGroup = CardGroup.fromString('7d6d');
     const board: CardGroup = CardGroup.fromString('8d9cAdJsAs');
     const handrank: HandRank = HandRank.evaluate(game, playerCards.concat(board));
@@ -82,7 +82,7 @@ describe('OddsCalculator: short-deck', () => {
   });
 
   it('ad-6d-7d-8d-9d is a straight flush', () => {
-    const game: ShortDeckGame = new ShortDeckGame();
+    const game: SixPlusShortDeckGame = new SixPlusShortDeckGame();
     const playerCards: CardGroup = CardGroup.fromString('7d6d');
     const board: CardGroup = CardGroup.fromString('8d9dAdTsAs');
     const handrank: HandRank = HandRank.evaluate(game, playerCards.concat(board));
@@ -98,21 +98,33 @@ describe('OddsCalculator: short-deck', () => {
     let player1Cards: CardGroup = CardGroup.fromString('AcAh');
     let player2Cards: CardGroup = CardGroup.fromString('Jd5d');
 
-    expect(OddsCalculator.calculate.bind(null, [player1Cards, player2Cards], null, 'short'))
+    expect(OddsCalculator.calculate.bind(null, [player1Cards, player2Cards], null, '6plus'))
       .to.throw(Error, 'Only cards rank 6 through A are valid');
 
     player1Cards = CardGroup.fromString('KsQs');
     player2Cards = CardGroup.fromString('AdTd');
     const board: CardGroup = CardGroup.fromString('JsTs5c');
 
-    expect(OddsCalculator.calculate.bind(null, [player1Cards, player2Cards], board, 'short'))
+    expect(OddsCalculator.calculate.bind(null, [player1Cards, player2Cards], board, '6plus'))
       .to.throw(Error, 'Only cards rank 6 through A are valid');
   });
 
   it('deck only has 6 thru A', () => {
-    const game: ShortDeckGame = new ShortDeckGame();
+    const game: SixPlusShortDeckGame = new SixPlusShortDeckGame();
     const expected: number[] = [6, 7, 8, 9, 10, 11, 12, 13, 14];
     game.rank.all()
          .forEach((rank: number, i: number) => expect(rank).to.equal(expected[i]));
+  });
+
+  it('trips beat straight', () => {
+    const player1Cards: CardGroup = CardGroup.fromString('7d7c');
+    const player2Cards: CardGroup = CardGroup.fromString('JsTs');
+    const board: CardGroup = CardGroup.fromString('8c9h7hAcKc');
+    const result: OddsCalculator = OddsCalculator.calculate([player1Cards, player2Cards], board, '6plus', 1);
+
+    const oddsPlayer1: number = result.equities[0].getEquity();
+    const oddsPlayer2: number = result.equities[1].getEquity();
+    expect(oddsPlayer1).to.be.equal(100);
+    expect(oddsPlayer2).to.be.equal(0);
   });
 });

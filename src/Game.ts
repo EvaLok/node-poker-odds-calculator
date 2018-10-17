@@ -17,9 +17,10 @@ export interface IGame {
   QUADS: number;
   STRAIGHT_FLUSH: number;
 
-  FLUSH_BEATS_FULLHOUSE: boolean;
   A6789_STRAIGHT: boolean;
   A2345_STRAIGHT: boolean;
+
+  IS_SHORT_DECK: boolean;
 
   rank: Rank;
 }
@@ -44,9 +45,10 @@ export class FullDeckGame implements IGame {
   public QUADS: number = 8;
   public STRAIGHT_FLUSH: number = 9;
 
-  public FLUSH_BEATS_FULLHOUSE: boolean = false;
   public A6789_STRAIGHT: boolean = false;
   public A2345_STRAIGHT: boolean = true;
+
+  public IS_SHORT_DECK: boolean = false;
 
   public rank: Rank;
 
@@ -64,7 +66,31 @@ export class ShortDeckRank extends Rank {
   }
 }
 
-export class ShortDeckGame implements IGame {
+export class SixPlusShortDeckGame implements IGame {
+
+  public HIGH_CARD: number = 1;
+  public PAIR: number = 2;
+  public TWO_PAIRS: number = 3;
+  public STRAIGHT: number = 4;
+  public TRIPS: number = 5;
+  public FLUSH: number = 7;
+  public FULL_HOUSE: number = 6;
+  public QUADS: number = 8;
+  public STRAIGHT_FLUSH: number = 9;
+
+  public A6789_STRAIGHT: boolean = true;
+  public A2345_STRAIGHT: boolean = false;
+
+  public IS_SHORT_DECK: boolean = true;
+
+  public rank: ShortDeckRank;
+
+  constructor() {
+    this.rank = new ShortDeckRank();
+  }
+}
+
+export class TritonShortDeckGame implements IGame {
 
   public HIGH_CARD: number = 1;
   public PAIR: number = 2;
@@ -76,11 +102,12 @@ export class ShortDeckGame implements IGame {
   public QUADS: number = 8;
   public STRAIGHT_FLUSH: number = 9;
 
-  public FLUSH_BEATS_FULLHOUSE: boolean = true;
   public A6789_STRAIGHT: boolean = true;
   public A2345_STRAIGHT: boolean = false;
 
-  public rank: Rank;
+  public IS_SHORT_DECK: boolean = true;
+
+  public rank: ShortDeckRank;
 
   constructor() {
     this.rank = new ShortDeckRank();

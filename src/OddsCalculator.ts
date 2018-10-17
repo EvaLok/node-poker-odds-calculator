@@ -5,7 +5,7 @@
 import * as _ from 'lodash';
 import { Card, Suit } from './Card';
 import { CardGroup } from './CardGroup';
-import { FullDeckGame, IGame, ShortDeckGame } from './Game';
+import { FullDeckGame, IGame, SixPlusShortDeckGame, TritonShortDeckGame } from './Game';
 import { HandRank } from './HandRank';
 
 export class HandEquity {
@@ -77,14 +77,25 @@ export class OddsCalculator {
     allGroups.forEach((group: CardGroup) => {
       allCards = allCards.concat(group);
     });
+
+    let game: IGame;
+    if (gameVariant === '6plus') {
+      game = new SixPlusShortDeckGame();
+    } else if (gameVariant === 'triton') {
+      game = new TritonShortDeckGame();
+    } else {
+      game = new FullDeckGame();
+    }
+
     // Invalid card values
-    if (gameVariant === 'short') {
+    if (game.IS_SHORT_DECK) {
       allCards.forEach((card: Card) => {
         if (card.getRank() < 6) {
           throw new Error('Only cards rank 6 through A are valid.');
         }
       });
     }
+
     const uniqCards: Card[] = _.uniqBy(allCards, (card: Card) => {
       return card.getRank() + '-' + card.getSuit();
     });
@@ -94,14 +105,6 @@ export class OddsCalculator {
     }
 
     iterations = iterations || 0;
-
-    let game: IGame;
-
-    if (gameVariant === 'short') {
-      game = new ShortDeckGame();
-    } else {
-      game = new FullDeckGame();
-    }
 
     let handranks: HandRank[] = [];
 
