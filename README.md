@@ -35,10 +35,17 @@ node_modules/.bin/poker-odds-calculator --board 7d9dTs7s JhJs JdQd
 > -b denotes the board
 
 #### Short deck
+
+There are two implemented variants of short deck: `6plus` and `triton`. The distinction between the two is that in 6plus, trips beats straights whereas in triton, straights beat trips.
+
  To calculate odds for short deck, override the game variant with -g
- ```bash
-node_modules/.bin/poker-odds-calculator -g short -b 7d9dTs JhJs JdQd
-node_modules/.bin/poker-odds-calculator --game short --board 7d9dTs7s JhJs JdQd
+
+```bash
+node_modules/.bin/poker-odds-calculator -g triton -b 7d9dTs JhJs JdQd
+node_modules/.bin/poker-odds-calculator --game triton --board 7d9dTs7s JhJs JdQd
+
+node_modules/.bin/poker-odds-calculator -g 6plus -b 7d9dTs JhJs JdQd
+node_modules/.bin/poker-odds-calculator --game 6plus --board 7d9dT
 ```
 
 ## API Usage
@@ -58,9 +65,12 @@ console.log(`Player #1 - ${player1Cards} - ${result.equities[0].getEquity()}%`);
 console.log(`Player #2 - ${player2Cards} - ${result.equities[1].getEquity()}%`);
 ```
 
-To use Short Deck:
+To use Short Deck, override the game variant parameter to be `triton` or `6plus`
+
 ```js
-const result = OddsCalculator.calculate([player1Cards, player2Cards], board, 'short');
+const tritonResult = OddsCalculator.calculate([player1Cards, player2Cards], board, 'triton');
+
+const sixPlusResult = OddsCalculator.calculate([player1Cards, player2Cards], board, '6plus');
 ```
 
 ## License
